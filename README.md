@@ -7,17 +7,20 @@
 - **TypeORM**: ORM for TypeScript and JavaScript that works with various SQL databases.
 - **Bcrypt**: Library for hashing passwords.
 
+
+## Installation
+
 1. **Clone the Repository**
 
    ```bash
 git clone https://github.com/Hamidjon03/chess.git
 
 
-2. **Install Dependencies
+2. **Install Dependencies**
 
 npm install
 
-3. **Set Up Environment Variables
+3. **Set Up Environment Variables**
 
 Create a .env file in the root directory and configure your database connection settings:
 
@@ -27,16 +30,16 @@ DATABASE_HOST=localhost
 DATABASE_PORT=5432
 DATABASE_NAME=chess
 
-4. **Run Migrations
+4. **Run Migrations**
 
 npm run migration:run
 
-5. **Seed the Database
+5. **Seed the Database**
 
 npm run seed:run
 
 // after that some users and players will be added
 
-6. **Start the Application
+6. **Start the Application**
 
-npm run start
+npm run start:dev
