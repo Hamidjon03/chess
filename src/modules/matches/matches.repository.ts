@@ -1,32 +1,42 @@
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Match } from './entities/match.entity';
+import { Repository, SelectQueryBuilder } from 'typeorm';
+import { ID } from 'src/common/types/type';
 import { IMatchesRepository } from './interfaces/matches.repository';
+import { Match } from './entities/match.entity';
 
 export class MatchesRepository implements IMatchesRepository {
   constructor(
     @InjectRepository(Match)
-    private readonly MatchRepository: Repository<Match>,
+    private readonly matchRepository: Repository<Match>,
   ) {}
 
-  async update(dto: Match): Promise<Match> {
-    return await this.MatchRepository.save(dto);
-  }
-  async delete(entity: Match): Promise<Match> {
-    return await this.MatchRepository.remove(entity);
-  }
-
   async insert(entity: Match): Promise<Match> {
-    const newMatch = this.MatchRepository.create(entity);
-    await this.MatchRepository.save(newMatch);
-    return newMatch;
+    return await this.matchRepository.save(entity);
   }
 
-  async findAll(): Promise<Array<Match>> {
-    return await this.MatchRepository.find();
+  async findAll(): Promise<Match[]> {
+    return await this.matchRepository.find();
   }
 
-  async findOneById(id: number): Promise<Match | null> {
-    return await this.MatchRepository.findOneBy({ id });
+  async findOneById(id: ID): Promise<Match | null> {
+    const queryBuilder: SelectQueryBuilder<Match> =
+      this.matchRepository.createQueryBuilder('match');
+
+    // Adding necessary joins for relations
+    queryBuilder
+      .leftJoinAndSelect('match.tournament', 'tournament')
+      .leftJoinAndSelect('match.player1', 'player1')
+      .leftJoinAndSelect('match.player2', 'player2')
+      .where('match.id = :id', { id });
+
+    return (await queryBuilder.getOne()) || null;
+  }
+
+  async update(dto: Match): Promise<Match> {
+    return await this.matchRepository.save(dto);
+  }
+
+  async delete(entity: Match): Promise<Match> {
+    return await this.matchRepository.remove(entity);
   }
 }

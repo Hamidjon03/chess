@@ -28,7 +28,7 @@ export class TournamentsRepository implements ITournamentsRepository {
     });
   }
 
-  async findOneById(id: number): Promise<Tournament | null> {
+  async findOneById(id: number): Promise<Tournament | undefined> {
     return await this.tournamentRepository.findOne({
       where: { id },
       relations: ['participants'],

@@ -1,6 +1,13 @@
 import { Leaderboard } from 'src/modules/leaderboard/entities/leaderboard.entity';
 import { Match } from 'src/modules/matches/entities/match.entity';
-import { Entity, Column, OneToMany, OneToOne, JoinColumn, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  Column,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+  ManyToMany,
+} from 'typeorm';
 import { BaseEntity } from 'src/common/database/baseEntity';
 import { User } from 'src/modules/users/entities/user.entity';
 import { Tournament } from 'src/modules/tournaments/entities/tournament.entity';

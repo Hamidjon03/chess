@@ -38,15 +38,15 @@ export class TournamentsService implements ITournamentsService {
     id: number,
     dto: UpdateTournamentDto,
   ): Promise<ResData<Tournament>> {
-    // Turnirni bazadan olish
+    // Retrieve the tournament from the database
     const tournament = await this.tournamentsRepository.findOneById(id);
 
-    // Agar turnir topilmasa, xato yuborish
+    // If the tournament is not found, throw an error
     if (!tournament) {
       throw new TournamentNotFoundException();
     }
 
-    // DTOdan ishtirokchilar IDlarini olish va bazadan topish
+    // If participants are provided in the DTO, validate and add them to the tournament
     if (dto.participants && dto.participants.length > 0) {
       const participants = await this.playersRepository.find({
         where: {
@@ -54,30 +54,23 @@ export class TournamentsService implements ITournamentsService {
         },
       });
 
-      // Agar ishtirokchilar topilmasa, xato yuborish
+      // If some participants are not found, throw an error
       if (participants.length !== dto.participants.length) {
         throw new Error('Some players not found');
       }
 
-      // Topilgan ishtirokchilarni turnirga qo'shish
+      // Add found participants to the tournament
       tournament.participants = participants;
     }
 
-    // Turnir ma'lumotlarini yangilash
+    // Update tournament details
     tournament.name = dto.name;
     tournament.startDate = dto.startDate;
     tournament.endDate = dto.endDate;
 
-    // Yangilangan turnirni saqlash
+    // Save the updated tournament to the database
     const updatedTournament =
       await this.tournamentsRepository.update(tournament);
-
-    // Turnirni yangilangan holatda qayta olish (ishtirokchilar bilan birga)
-    // const updatedTournamentWithRelations =
-    //   await this.tournamentsRepository.findOne({
-    //     where: { id },
-    //     relations: ['participants'],
-    //   });
 
     return new ResData<Tournament>(
       'Tournament was updated successfully',
@@ -93,23 +86,23 @@ export class TournamentsService implements ITournamentsService {
     newTournament.endDate = dto.endDate;
 
     if (dto.participants && dto.participants.length > 0) {
-      // O'yinchilarni bazadan olish
+      // Retrieve players from the database
       const participants = await this.playersRepository.find({
         where: {
           id: In(dto.participants),
         },
       });
 
-      // O'yinchilarni topilgan bo'lsa, ularni turnirga qo'shish
+      // If participants are provided in the DTO, validate and add them to the tournament
       if (participants.length > 0) {
         newTournament.participants = participants;
       } else {
-        // Agar o'yinchilar topilmasa, xato yuborish
+        // If no players are found, throw an error
         throw new Error('Some players not found');
       }
     }
 
-    // Yangi turnirni saqlash
+    // Save the new tournament to the database
     const newData = await this.tournamentsRepository.insert(newTournament);
     return new ResData<Tournament>(
       'Tournament was created successfully',
