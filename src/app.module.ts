@@ -7,7 +7,6 @@ import { MatchesModule } from './modules/matches/matches.module';
 import { PlayersModule } from './modules/players/players.module';
 import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 import { config } from './common/config';
-import { Auth } from './modules/auth/entities/auth.entity';
 import { User } from './modules/users/entities/user.entity';
 import { Tournament } from './modules/tournaments/entities/tournament.entity';
 import { Match } from './modules/matches/entities/match.entity';
@@ -23,7 +22,7 @@ import { Leaderboard } from './modules/leaderboard/entities/leaderboard.entity';
       username: config.database_user,
       password: config.database_password,
       database: config.database,
-      entities: [Auth, User, Tournament, Match, Player, Leaderboard],
+      entities: [User, Tournament, Match, Player, Leaderboard],
       synchronize: true,
     }),
     AuthModule,

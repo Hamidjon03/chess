@@ -5,22 +5,22 @@ import { Entity, Column, ManyToMany, JoinTable, OneToMany } from 'typeorm';
 import { BaseEntity } from 'src/common/database/baseEntity';
 @Entity()
 export class Tournament extends BaseEntity {
-  @Column()
+  @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
 
-  @Column()
+  @Column({ type: 'timestamp', nullable: false })
   startDate: Date;
 
-  @Column()
+  @Column({ type: 'timestamp', nullable: false })
   endDate: Date;
 
-  @ManyToMany(() => Player)
+  @ManyToMany(() => Player, (player) => player.tournaments, { eager: true })
   @JoinTable()
   participants: Player[];
 
   @OneToMany(() => Leaderboard, (leaderboard) => leaderboard.tournament)
   leaderboards: Leaderboard[];
 
-  @OneToMany(() => Match, (match) => match.tournament) // Bog'lanishni qo'shing
+  @OneToMany(() => Match, (match) => match.tournament)
   matches: Match[];
 }

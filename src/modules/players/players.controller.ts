@@ -1,11 +1,25 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Inject,
+} from '@nestjs/common';
 import { PlayersService } from './players.service';
 import { CreatePlayerDto } from './dto/create-player.dto';
 import { UpdatePlayerDto } from './dto/update-player.dto';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('players')
 @Controller('players')
 export class PlayersController {
-  constructor(private readonly playersService: PlayersService) {}
+  constructor(
+    @Inject('IPlayersService')
+    private readonly playersService: PlayersService,
+  ) {}
 
   @Post()
   create(@Body() createPlayerDto: CreatePlayerDto) {
@@ -19,7 +33,7 @@ export class PlayersController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.playersService.findOne(+id);
+    return this.playersService.findOneById(+id);
   }
 
   @Patch(':id')
@@ -29,6 +43,6 @@ export class PlayersController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.playersService.remove(+id);
+    return this.playersService.delete(+id);
   }
 }

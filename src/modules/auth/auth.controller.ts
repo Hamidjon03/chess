@@ -1,42 +1,41 @@
 import {
   Controller,
-  Get,
   Post,
   Body,
-  Patch,
-  Param,
-  Delete,
+  Inject,
+  HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
-
+import { ApiTags } from '@nestjs/swagger';
+import { IAuthService } from './interfaces/auth.service';
+import { IUsersService } from '../users/interfaces/users.service';
+import { LoginDto } from './dto/login-auth.dto';
+import { RegisterDto } from './dto/register-auth.dto';
+import { UserAlreadyException } from '../users/exception/users.exception';
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    @Inject('IAuthService') private readonly authService: IAuthService,
+    @Inject('IUsersService') private readonly userService: IUsersService,
+  ) {}
 
-  @Post()
-  create(@Body() createAuthDto: CreateAuthDto) {
-    return this.authService.create(createAuthDto);
+  @HttpCode(HttpStatus.OK)
+  @Post('login')
+  async login(@Body() loginDto: LoginDto) {
+    return await this.authService.login(loginDto);
   }
 
-  @Get()
-  findAll() {
-    return this.authService.findAll();
-  }
+  @HttpCode(HttpStatus.OK)
+  @Post('register')
+  async register(@Body() registerDto: RegisterDto) {
+    const { data: foundUser } = await this.userService.findOneByLogin(
+      registerDto.login,
+    );
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.authService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAuthDto: UpdateAuthDto) {
-    return this.authService.update(+id, updateAuthDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.authService.remove(+id);
+    if (foundUser) {
+      throw new UserAlreadyException();
+    }
+    return await this.authService.register(registerDto);
   }
 }

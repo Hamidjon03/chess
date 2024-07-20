@@ -1,6 +1,7 @@
 import { RoleEnum } from 'src/common/enums/enum';
 import { BaseEntity } from 'src/common/database/baseEntity';
-import { Entity, Column } from 'typeorm';
+import { Entity, Column, OneToOne } from 'typeorm';
+import { Player } from 'src/modules/players/entities/player.entity';
 
 @Entity()
 export class User extends BaseEntity {
@@ -15,4 +16,7 @@ export class User extends BaseEntity {
 
   @Column({ type: 'text', nullable: false })
   role: RoleEnum; // 'admin' yoki 'player'
+
+  @OneToOne(() => Player, (player) => player.user)
+  player: Player;
 }

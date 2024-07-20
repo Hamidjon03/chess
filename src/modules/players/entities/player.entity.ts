@@ -1,21 +1,30 @@
 import { Leaderboard } from 'src/modules/leaderboard/entities/leaderboard.entity';
 import { Match } from 'src/modules/matches/entities/match.entity';
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne, JoinColumn, ManyToMany } from 'typeorm';
 import { BaseEntity } from 'src/common/database/baseEntity';
+import { User } from 'src/modules/users/entities/user.entity';
+import { Tournament } from 'src/modules/tournaments/entities/tournament.entity';
 
 @Entity()
 export class Player extends BaseEntity {
-  @Column()
+  @Column({ type: 'varchar', length: 50, nullable: false })
   name: string;
 
-  @Column()
+  @Column({ type: 'int', nullable: false })
   age: number;
 
-  @Column()
+  @Column({ type: 'int', nullable: false })
   rating: number;
 
-  @Column()
+  @Column({ nullable: false })
   country: string;
+
+  @ManyToMany(() => Tournament, (tournament) => tournament.participants)
+  tournaments: Tournament[];
+
+  @OneToOne(() => User, (user) => user.player, { nullable: false })
+  @JoinColumn()
+  user: User;
 
   @OneToMany(() => Leaderboard, (leaderboard) => leaderboard.player)
   leaderboards: Leaderboard[];

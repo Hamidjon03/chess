@@ -1,26 +1,59 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { IAuthService, ILoginData } from './interfaces/auth.service';
+import { ResData } from 'src/lib/resData';
+import { JwtService } from '@nestjs/jwt';
+import { LoginOrPasswordWrong } from './exception/auth.exception';
+import { BcryptHashing } from 'src/lib/bcrypt';
+import { IUsersService } from '../users/interfaces/users.service';
+import { LoginDto } from './dto/login-auth.dto';
+import { RegisterDto } from './dto/register-auth.dto';
 
 @Injectable()
-export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+export class AuthService implements IAuthService {
+  constructor(
+    @Inject('IUsersService') private readonly userService: IUsersService,
+    private jwtService: JwtService,
+  ) {}
+
+  async login(dto: LoginDto): Promise<ResData<ILoginData>> {
+    const { data: foundUser } = await this.userService.findOneByLogin(
+      dto.login,
+    );
+
+    if (!foundUser) {
+      throw new LoginOrPasswordWrong();
+    }
+
+    const isMatch = await BcryptHashing.compare(
+      dto.password,
+      foundUser.password,
+    );
+
+    if (!isMatch) {
+      throw new LoginOrPasswordWrong();
+    }
+
+    const token = await this.jwtService.signAsync({ id: foundUser.id });
+    return new ResData<ILoginData>('success', HttpStatus.OK, {
+      user: foundUser,
+      token,
+    });
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async register(dto: RegisterDto): Promise<ResData<ILoginData>> {
+    const hashedPassword = await BcryptHashing.hash(dto.password);
+    dto.password = hashedPassword;
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    const { data: newUser } = await this.userService.create(dto);
+    const token = await this.jwtService.signAsync({ id: newUser.id });
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return new ResData<ILoginData>(
+      'User was registered successfully',
+      HttpStatus.CREATED,
+      {
+        user: newUser,
+        token,
+      },
+    );
   }
 }
