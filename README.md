@@ -12,33 +12,35 @@
 
 1. **Clone the Repository**
 
-git clone https://github.com/Hamidjon03/chess.git
+- **git clone https://github.com/Hamidjon03/chess.git**
 
 
 2. **Install Dependencies**
 
-npm install
+- **npm install**
 
 3. **Set Up Environment Variables**
 
 Create a .env file in the root directory and configure your database connection settings:
 
-DATABASE_USER=yourusername
-DATABASE_PASSWORD=yourpassword
-DATABASE_HOST=localhost
-DATABASE_PORT=5432
-DATABASE_NAME=chess
+- **DATABASE_USER=yourusername**
+- **DATABASE_PASSWORD=yourpassword**
+- **DATABASE_HOST=localhost**
+- **DATABASE_PORT=5432**
+- **DATABASE_NAME=chess**
 
 4. **Run Migrations**
 
-npm run migration:run
+- **npm run migration:run**
 
 5. **Seed the Database**
 
-npm run seed:run
+- **npm run seed:run**
 
 // after that some users and players will be added
 
 6. **Start the Application**
 
-npm run start:dev
+- **npm run start:dev**
+
+- **http://localhost:8000/docs** swagger
