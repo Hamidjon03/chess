@@ -12,7 +12,6 @@
 
 1. **Clone the Repository**
 
-   ```bash
 git clone https://github.com/Hamidjon03/chess.git
 
 
