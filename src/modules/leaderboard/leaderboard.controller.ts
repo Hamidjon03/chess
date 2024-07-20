@@ -12,6 +12,8 @@ import { LeaderboardService } from './leaderboard.service';
 import { CreateLeaderboardDto } from './dto/create-leaderboard.dto';
 import { UpdateLeaderboardDto } from './dto/update-leaderboard.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { RoleEnum } from 'src/common/enums/enum';
+import { Auth } from 'src/common/decorators/Auth.decorator';
 
 @ApiTags('leaderboard')
 @Controller('leaderboard')
@@ -21,6 +23,7 @@ export class LeaderboardController {
     private readonly leaderboardService: LeaderboardService,
   ) {}
 
+  @Auth(RoleEnum.ADMIN)
   @Post()
   create(@Body() createLeaderboardDto: CreateLeaderboardDto) {
     return this.leaderboardService.create(createLeaderboardDto);
@@ -36,6 +39,7 @@ export class LeaderboardController {
     return this.leaderboardService.findOneById(+id);
   }
 
+  @Auth(RoleEnum.ADMIN)
   @Patch(':id')
   update(
     @Param('id') id: string,
@@ -44,6 +48,7 @@ export class LeaderboardController {
     return this.leaderboardService.update(+id, updateLeaderboardDto);
   }
 
+  @Auth(RoleEnum.ADMIN)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.leaderboardService.delete(+id);

@@ -29,7 +29,7 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Auth(RoleEnum.ADMIN)
+  // @Auth(RoleEnum.ADMIN)
   @Get()
   findAll() {
     return this.usersService.findAll();

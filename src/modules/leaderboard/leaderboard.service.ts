@@ -1,57 +1,95 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { CreateLeaderboardDto } from './dto/create-leaderboard.dto';
-import { UpdateLeaderboardDto } from './dto/update-leaderboard.dto';
+import { Injectable, Inject } from '@nestjs/common';
 import { ILeaderboardService } from './interfaces/leaderboard.service';
-import { ResData } from 'src/lib/resData';
-import { Leaderboard } from './entities/leaderboard.entity';
 import { ILeaderboardRepository } from './interfaces/leaderboard.repository';
+import { CreateLeaderboardDto } from './dto/create-leaderboard.dto';
+import { Leaderboard } from './entities/leaderboard.entity';
+import { ResData } from 'src/lib/resData';
 import { LeaderboardNotFoundException } from './exception/leaderboard.exception';
-import { ID } from 'src/common/types/type';
+import { UpdateLeaderboardDto } from './dto/update-leaderboard.dto';
 
 @Injectable()
 export class LeaderboardService implements ILeaderboardService {
   constructor(
     @Inject('ILeaderboardRepository')
-    private readonly leaderboardrepository: ILeaderboardRepository,
+    private readonly leaderboardRepository: ILeaderboardRepository,
   ) {}
-  async findOneById(id: number): Promise<ResData<Leaderboard>> {
-    const data = await this.leaderboardrepository.findOneById(id);
-    if (!data) {
-      throw new LeaderboardNotFoundException();
-    }
-    return new ResData<Leaderboard>('success', 200, data);
-  }
-
-  async findAll(): Promise<ResData<Leaderboard[]>> {
-    const data = await this.leaderboardrepository.findAll();
-
-    return new ResData('success', 200, data);
-  }
-
-  async update(
-    id: ID,
-    updateLeaderboardDto: UpdateLeaderboardDto,
-  ): Promise<ResData<Leaderboard | undefined>> {
-    const { data: foundData } = await this.findOneById(id);
-    const updateData = Object.assign(foundData, updateLeaderboardDto);
-    const data = await this.leaderboardrepository.update(updateData);
-    return new ResData<Leaderboard>('ok', 200, data);
-  }
-  async delete(id: ID) {
-    const { data: foundData } = await this.findOneById(id);
-    const data = await this.leaderboardrepository.delete(foundData);
-
-    return new ResData('success', 200, data);
-  }
 
   async create(dto: CreateLeaderboardDto): Promise<ResData<Leaderboard>> {
-    let newLeaderboard = new Leaderboard();
-    newLeaderboard = Object.assign(dto, newLeaderboard);
-    const newData = await this.leaderboardrepository.insert(newLeaderboard);
+    const newLeaderboard = new Leaderboard();
+    newLeaderboard.player = { id: dto.playerId } as any;
+    newLeaderboard.tournament = { id: dto.tournamentId } as any;
+    newLeaderboard.score = dto.score;
+    newLeaderboard.rank = dto.rank;
+
+    const createdLeaderboard =
+      await this.leaderboardRepository.create(newLeaderboard);
     return new ResData<Leaderboard>(
       'Leaderboard was created successfully',
       201,
-      newData,
+      createdLeaderboard,
     );
+  }
+
+  async findAll(): Promise<ResData<Leaderboard[]>> {
+    const leaderboards = await this.leaderboardRepository.findAll();
+    return new ResData('success', 200, leaderboards);
+  }
+
+  async findOneById(id: number): Promise<ResData<Leaderboard>> {
+    const leaderboard = await this.leaderboardRepository.findOneById(id);
+    if (!leaderboard) {
+      throw new LeaderboardNotFoundException();
+    }
+    return new ResData<Leaderboard>('success', 200, leaderboard);
+  }
+
+  async update(
+    id: number,
+    dto: UpdateLeaderboardDto,
+  ): Promise<ResData<Leaderboard>> {
+    const leaderboard = await this.leaderboardRepository.findOneById(id);
+    if (!leaderboard) {
+      throw new LeaderboardNotFoundException();
+    }
+
+    if (dto.playerId) {
+      leaderboard.player = { id: dto.playerId } as any;
+    }
+    if (dto.tournamentId) {
+      leaderboard.tournament = { id: dto.tournamentId } as any;
+    }
+    if (dto.score) {
+      leaderboard.score = dto.score;
+    }
+    if (dto.rank) {
+      leaderboard.rank = dto.rank;
+    }
+
+    const updatedLeaderboard =
+      await this.leaderboardRepository.update(leaderboard);
+    return new ResData<Leaderboard>(
+      'Leaderboard was updated successfully',
+      200,
+      updatedLeaderboard,
+    );
+  }
+
+  async delete(id: number): Promise<ResData<void>> {
+    await this.leaderboardRepository.delete(id);
+    return new ResData<void>('Leaderboard was deleted successfully', 200, null);
+  }
+
+  async findByPlayerId(playerId: number): Promise<ResData<Leaderboard[]>> {
+    const leaderboards =
+      await this.leaderboardRepository.findByPlayerId(playerId);
+    return new ResData<Leaderboard[]>('success', 200, leaderboards);
+  }
+
+  async findByTournamentId(
+    tournamentId: number,
+  ): Promise<ResData<Leaderboard[]>> {
+    const leaderboards =
+      await this.leaderboardRepository.findByTournamentId(tournamentId);
+    return new ResData<Leaderboard[]>('success', 200, leaderboards);
   }
 }

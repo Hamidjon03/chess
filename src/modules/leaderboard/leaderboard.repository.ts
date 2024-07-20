@@ -1,32 +1,45 @@
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ILeaderboardRepository } from './interfaces/leaderboard.repository';
 import { Leaderboard } from './entities/leaderboard.entity';
 
+@Injectable()
 export class LeaderboardRepository implements ILeaderboardRepository {
   constructor(
     @InjectRepository(Leaderboard)
-    private readonly LeaderboardRepository: Repository<Leaderboard>,
+    private readonly leaderboardRepository: Repository<Leaderboard>,
   ) {}
 
-  async update(dto: Leaderboard): Promise<Leaderboard> {
-    return await this.LeaderboardRepository.save(dto);
-  }
-  async delete(entity: Leaderboard): Promise<Leaderboard> {
-    return await this.LeaderboardRepository.remove(entity);
+  async create(entity: Leaderboard): Promise<Leaderboard> {
+    return await this.leaderboardRepository.save(entity);
   }
 
-  async insert(entity: Leaderboard): Promise<Leaderboard> {
-    const newLeaderboard = this.LeaderboardRepository.create(entity);
-    await this.LeaderboardRepository.save(newLeaderboard);
-    return newLeaderboard;
-  }
-
-  async findAll(): Promise<Array<Leaderboard>> {
-    return await this.LeaderboardRepository.find();
+  async findAll(): Promise<Leaderboard[]> {
+    return await this.leaderboardRepository.find();
   }
 
   async findOneById(id: number): Promise<Leaderboard | null> {
-    return await this.LeaderboardRepository.findOneBy({ id });
+    return await this.leaderboardRepository.findOne({ where: { id } });
+  }
+
+  async update(entity: Leaderboard): Promise<Leaderboard> {
+    return await this.leaderboardRepository.save(entity);
+  }
+
+  async delete(id: number): Promise<void> {
+    await this.leaderboardRepository.delete(id);
+  }
+
+  async findByPlayerId(playerId: number): Promise<Leaderboard[]> {
+    return await this.leaderboardRepository.find({
+      where: { player: { id: playerId } },
+    });
+  }
+
+  async findByTournamentId(tournamentId: number): Promise<Leaderboard[]> {
+    return await this.leaderboardRepository.find({
+      where: { tournament: { id: tournamentId } },
+    });
   }
 }

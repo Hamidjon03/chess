@@ -5,10 +5,7 @@ import { IPlayersRepository } from '../players/interfaces/players.repository';
 import { ITournamentsRepository } from '../tournaments/interfaces/tournaments.repository';
 import { ResData } from 'src/lib/resData';
 import { Match } from './entities/match.entity';
-import {
-  MatchAlreadyException,
-  MatchNotFoundException,
-} from './exception/matches.exception';
+import { MatchNotFoundException } from './exception/matches.exception';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { TournamentNotFoundException } from '../tournaments/exception/tournaments.exception';
 import { UpdateMatchDto } from './dto/update-match.dto';
