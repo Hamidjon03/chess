@@ -5,7 +5,10 @@ import { IPlayersRepository } from '../players/interfaces/players.repository';
 import { ITournamentsRepository } from '../tournaments/interfaces/tournaments.repository';
 import { ResData } from 'src/lib/resData';
 import { Match } from './entities/match.entity';
-import { MatchNotFoundException } from './exception/matches.exception';
+import {
+  MatchAlreadyException,
+  MatchNotFoundException,
+} from './exception/matches.exception';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { TournamentNotFoundException } from '../tournaments/exception/tournaments.exception';
 import { UpdateMatchDto } from './dto/update-match.dto';
@@ -40,7 +43,12 @@ export class MatchesService implements IMatchesService {
   // Create a new match and assign players
   async create(dto: CreateMatchDto): Promise<ResData<Match>> {
     const newMatch = new Match();
+
     const { tournamentId, player1Id, player2Id, result, date, score } = dto;
+    // const isExistMatch = await this.findOneById(dto.matchName)
+    // if (isExistMatch) {
+    //   throw new MatchAlreadyException();
+    // }
 
     // Verify tournament exists
     const tournament =
@@ -66,11 +74,7 @@ export class MatchesService implements IMatchesService {
 
     // Save the new tournament to the database
     const newData = await this.matchesRepository.insert(newMatch);
-    return new ResData<Match>(
-      'Tournament was created successfully',
-      201,
-      newData,
-    );
+    return new ResData<Match>('Match was created successfully', 201, newData);
   }
 
   // Update match details
